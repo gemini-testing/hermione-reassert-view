@@ -6,7 +6,7 @@ More info about hermione plugins in [hermione](https://github.com/gemini-testing
 ## Installation
 
 ```bash
-$ npm install hermione-reassert-view --registry=http://npm.yandex-team.ru
+$ npm install hermione-reassert-view
 ```
 
 ## Configuration
@@ -20,10 +20,20 @@ module.exports = {
     plugins: {
         'hermione-reassert-view': {
             enabled: true, // by default
-            browsers: ['edge']
+            browsers: ['edge'],
+            maxDiffSize: { // max allowable diff size in pixels before ignoring antialiasing
+                width: 10, // 15 by default
+                height: 10 // 15 by default
+            },
+            dry: true // debug mode: do not fix assert view results. `false` by default
         }
     },
 
     // ...
 };
+```
+
+## Debugging
+```bash
+$ DEBUG=hermione-reassert-view hermione_reassert_view_dry=true hermione
 ```
