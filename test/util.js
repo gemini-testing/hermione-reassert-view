@@ -27,7 +27,7 @@ describe('hermione-reassert-view/util', () => {
         };
 
         it('should compare images with antialiasing and without antialiasing', async () => {
-            await compareImages_({refImagePath: '/ref', currentImagePath: '/curr'});
+            await compareImages_({refImgPath: '/ref', currImgPath: '/curr'});
 
             assert.calledTwice(compareImages);
             assert.calledWith(compareImages, '/ref', '/curr', {ignore: 'antialiasing'});

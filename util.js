@@ -4,10 +4,10 @@ const compareImages = require('@gemini-testing/resemblejs/compareImages');
 const util = require('util');
 const debug = require('debug')('hermione-reassert-view');
 
-exports.compareImages = async function({refImagePath, currentImagePath, maxDiffSize}) {
+exports.compareImages = async function({refImgPath, currImgPath, maxDiffSize}) {
     const [results, resultsWithoutAntialiasing] = await Promise.all([
-        compareImages(refImagePath, currentImagePath, {ignore: 'less'}),
-        compareImages(refImagePath, currentImagePath, {ignore: 'antialiasing'})
+        compareImages(refImgPath, currImgPath, {ignore: 'less'}),
+        compareImages(refImgPath, currImgPath, {ignore: 'antialiasing'})
     ]);
 
     debug(`maxDiffSize: ${util.inspect(maxDiffSize)}`);

@@ -37,8 +37,8 @@ async function reassertLastResult(assertViewResults, {maxDiffSize, dry}, test) {
     }
 
     try {
-        const {stateName, refImagePath, currentImagePath} = lastResult;
-        const isEqual = await util.compareImages({refImagePath, currentImagePath, maxDiffSize});
+        const {stateName, refImg, currImg} = lastResult;
+        const isEqual = await util.compareImages({refImgPath: refImg.path, currImgPath: currImg.path, maxDiffSize});
 
         const testTitle = test.fullTitle();
         const browserId = test.browserId;
@@ -51,7 +51,7 @@ async function reassertLastResult(assertViewResults, {maxDiffSize, dry}, test) {
         debug(`'${testTitle} :: ${stateName} :: ${browserId}' images are the same!`);
 
         if (!dry) {
-            assertViewResults[assertViewResults.length - 1] = {stateName, refImagePath};
+            assertViewResults[assertViewResults.length - 1] = {stateName, refImg};
         }
     } catch (e) {
         debug(e);
