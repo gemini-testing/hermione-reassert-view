@@ -31,7 +31,7 @@ module.exports = (hermione, opts) => {
 };
 
 async function reassertLastResult(assertViewResults, {maxDiffSize, dry}, test) {
-    const lastResult = assertViewResults[assertViewResults.length - 1];
+    const lastResult = assertViewResults[assertViewResults.length - 1] || {};
     if (lastResult.name !== 'ImageDiffError') {
         return;
     }
