@@ -145,6 +145,14 @@ describe('hermione-reassert-view', () => {
             assert.notCalled(util.compareImages);
         });
 
+        it('should not compare images if there are no assertView results', async () => {
+            const browser = init_({assertViewResults: []});
+
+            await browser.assertView();
+
+            assert.notCalled(util.compareImages);
+        });
+
         it('should compare images on diff', async () => {
             const assertViewResults = [
                 {name: 'ImageDiffError'}
