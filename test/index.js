@@ -125,7 +125,7 @@ describe('hermione-reassert-view', () => {
 
         it('should not compare images on success', async () => {
             const assertViewResults = [
-                {stateName: 'foo', refImagePath: '/bar/baz'}
+                {stateName: 'foo'}
             ];
             const browser = init_({assertViewResults});
 
@@ -155,7 +155,7 @@ describe('hermione-reassert-view', () => {
 
         it('should compare images on diff', async () => {
             const assertViewResults = [
-                {name: 'ImageDiffError'}
+                {name: 'ImageDiffError', refImg: {}, currImg: {}}
             ];
             const maxDiffSize = {
                 width: 100500, height: 500100
@@ -196,8 +196,8 @@ describe('hermione-reassert-view', () => {
             const assertViewResults = [{
                 name: 'ImageDiffError',
                 stateName: 'foo',
-                refImagePath: '/bar/baz',
-                currentImagePath: '/qux'
+                refImg: {path: '/bar/baz'},
+                currImg: {path: '/qux'}
             }];
             const browser = init_({assertViewResults});
             util.compareImages.resolves(true);
@@ -206,7 +206,7 @@ describe('hermione-reassert-view', () => {
 
             assert.deepEqual(
                 browser.executionContext.hermioneCtx.assertViewResults.get(),
-                [{stateName: 'foo', refImagePath: '/bar/baz'}]
+                [{stateName: 'foo', refImg: {path: '/bar/baz'}}]
             );
         });
 
