@@ -8,10 +8,12 @@ exports.validateDiffSize = function({diffClusters}, maxDiffSize) {
     debug(`diffClusters: ${util.inspect(diffClusters)}`);
     debug(`maxDiffSize: ${util.inspect(maxDiffSize)}`);
 
-    return diffClusters.every(({left, right, top, bottom}) => {
-        return right - left <= maxDiffSize.width
-            && bottom - top <= maxDiffSize.height;
-    });
+    return Array.isArray(diffClusters)
+        && diffClusters.length > 0
+        && diffClusters.every(({left, right, top, bottom}) => {
+            return right - left <= maxDiffSize.width
+                && bottom - top <= maxDiffSize.height;
+        });
 };
 
 exports.compareImages = async function(refPath, currPath) {
