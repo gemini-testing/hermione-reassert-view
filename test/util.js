@@ -49,12 +49,20 @@ describe('hermione-reassert-view/util', () => {
             assert.isFalse(result);
         });
 
-        it('should return true if no diff clusters', () => {
+        it('should return false if diff clusters are empty', () => {
             const maxDiffSize = {width: 15, height: 15};
 
             const result = util.validateDiffSize({diffClusters: []}, maxDiffSize);
 
-            assert.isTrue(result);
+            assert.isFalse(result);
+        });
+
+        it('should return true if no diff clusters', () => {
+            const maxDiffSize = {width: 15, height: 15};
+
+            const result = util.validateDiffSize({}, maxDiffSize);
+
+            assert.isFalse(result);
         });
     });
 
