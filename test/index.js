@@ -37,6 +37,7 @@ describe('hermione-reassert-view', () => {
 
     beforeEach(() => {
         sandbox.stub(util, 'compareImages').resolves(false);
+        sandbox.stub(util, 'validateDiffSize').resolves(true);
     });
 
     afterEach(() => sandbox.restore());
@@ -153,10 +154,9 @@ describe('hermione-reassert-view', () => {
             assert.notCalled(util.compareImages);
         });
 
-        it('should compare images on diff', async () => {
-            const assertViewResults = [
-                {name: 'ImageDiffError', refImg: {}, currImg: {}}
-            ];
+        it('should validate diff size', async () => {
+            const diffError = {name: 'ImageDiffError'};
+            const assertViewResults = [diffError];
             const maxDiffSize = {
                 width: 100500, height: 500100
             };
@@ -164,7 +164,30 @@ describe('hermione-reassert-view', () => {
 
             await browser.assertView();
 
-            assert.calledOnceWith(util.compareImages, sinon.match({maxDiffSize}));
+            assert.calledOnceWith(util.validateDiffSize, diffError, maxDiffSize);
+        });
+
+        it('should not compare images if diffs are too big', async () => {
+            const assertViewResults = [
+                {name: 'ImageDiffError', refImg: {}, currImg: {}}
+            ];
+            const browser = init_({assertViewResults});
+            util.validateDiffSize.returns(false);
+
+            await browser.assertView();
+
+            assert.notCalled(util.compareImages);
+        });
+
+        it('should compare images on diff', async () => {
+            const assertViewResults = [
+                {name: 'ImageDiffError', refImg: {path: '/ref'}, currImg: {path: '/curr'}}
+            ];
+            const browser = init_({assertViewResults});
+
+            await browser.assertView();
+
+            assert.calledOnceWith(util.compareImages, '/ref', '/curr');
         });
 
         it('should not fail on compare fail', async () => {

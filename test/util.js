@@ -1,7 +1,6 @@
 'use strict';
 
 const proxyquire = require('proxyquire');
-const _ = require('lodash');
 
 describe('hermione-reassert-view/util', () => {
     let util;
@@ -14,76 +13,78 @@ describe('hermione-reassert-view/util', () => {
         });
     });
 
-    describe('compareImages', () => {
-        const compareImages_ = (opts = {}) => {
-            _.defaults(opts, {
-                maxDiffSize: {
-                    width: 100500,
-                    height: 500100
-                }
-            });
+    describe('validateDiffSize', () => {
+        it('should return true if all diff clusters are less than max diff size', () => {
+            const diffClusters = [
+                {left: 10, right: 15, top: 10, bottom: 15},
+                {left: 10, right: 20, top: 10, bottom: 20}
+            ];
+            const maxDiffSize = {width: 15, height: 15};
 
-            return util.compareImages(opts);
-        };
-
-        it('should compare images with antialiasing and without antialiasing', async () => {
-            await compareImages_({refImgPath: '/ref', currImgPath: '/curr'});
-
-            assert.calledTwice(compareImages);
-            assert.calledWith(compareImages, '/ref', '/curr', {ignore: 'antialiasing'});
-            assert.calledWith(compareImages, '/ref', '/curr', {ignore: 'less'});
-        });
-
-        it('should return true if diff is antialiasing and diff bounds are less than passed', async () => {
-            compareImages.withArgs(sinon.match.any, sinon.match.any, {ignore: 'antialiasing'}).resolves({
-                rawMisMatchPercentage: 0
-            });
-
-            compareImages.withArgs(sinon.match.any, sinon.match.any, {ignore: 'less'}).resolves({
-                diffBounds: {
-                    top: 0, bottom: 9,
-                    left: 5, right: 14
-                }
-            });
-
-            const result = await compareImages_({
-                maxDiffSize: {
-                    width: 10,
-                    height: 10
-                }
-            });
+            const result = util.validateDiffSize({diffClusters}, maxDiffSize);
 
             assert.isTrue(result);
         });
 
-        it('should return false if there are diffs even without antialiasing', async () => {
+        it('should return true if diff clusters are the same as max diff size', () => {
+            const diffClusters = [
+                {left: 10, right: 25, top: 10, bottom: 25}
+            ];
+            const maxDiffSize = {width: 15, height: 15};
+
+            const result = util.validateDiffSize({diffClusters}, maxDiffSize);
+
+            assert.isTrue(result);
+        });
+
+        it('should return false if there are diff clusters bigger than max diff size', () => {
+            const diffClusters = [
+                {left: 10, right: 15, top: 10, bottom: 15},
+                {left: 10, right: 30, top: 10, bottom: 30}
+            ];
+            const maxDiffSize = {width: 15, height: 15};
+
+            const result = util.validateDiffSize({diffClusters}, maxDiffSize);
+
+            assert.isFalse(result);
+        });
+
+        it('should return true if no diff clusters', () => {
+            const maxDiffSize = {width: 15, height: 15};
+
+            const result = util.validateDiffSize({diffClusters: []}, maxDiffSize);
+
+            assert.isTrue(result);
+        });
+    });
+
+    describe('compareImages', () => {
+        const compareImages_ = (opts = {}) => {
+            return util.compareImages(opts.refImgPath, opts.currImgPath);
+        };
+
+        it('should compare images with antialiasing', async () => {
+            await compareImages_({refImgPath: '/ref', currImgPath: '/curr'});
+
+            assert.calledOnceWith(compareImages, '/ref', '/curr', {ignore: 'antialiasing'});
+        });
+
+        it('should return true if diff is antialiasing', async () => {
+            compareImages.withArgs(sinon.match.any, sinon.match.any, {ignore: 'antialiasing'}).resolves({
+                rawMisMatchPercentage: 0
+            });
+
+            const result = await compareImages_();
+
+            assert.isTrue(result);
+        });
+
+        it('should return false if diffs is not antialiasing', async () => {
             compareImages.withArgs(sinon.match.any, sinon.match.any, {ignore: 'antialiasing'}).resolves({
                 rawMisMatchPercentage: 5
             });
 
             const result = await compareImages_();
-
-            assert.isFalse(result);
-        });
-
-        it('should return false if there are diff is too big', async () => {
-            compareImages.withArgs(sinon.match.any, sinon.match.any, {ignore: 'antialiasing'}).resolves({
-                rawMisMatchPercentage: 0
-            });
-
-            compareImages.withArgs(sinon.match.any, sinon.match.any, {ignore: 'less'}).resolves({
-                diffBounds: {
-                    top: 0, bottom: 11,
-                    left: 5, right: 14
-                }
-            });
-
-            const result = await compareImages_({
-                maxDiffSize: {
-                    width: 10,
-                    height: 10
-                }
-            });
 
             assert.isFalse(result);
         });
