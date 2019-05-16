@@ -1,22 +1,23 @@
 'use strict';
 
-const compareImages = require('@gemini-testing/resemblejs/compareImages');
+const compareImages = require('resemblejs/compareImages');
 const util = require('util');
 const debug = require('debug')('hermione-reassert-view');
 
-exports.compareImages = async function({refImgPath, currImgPath, maxDiffSize}) {
-    const [results, resultsWithoutAntialiasing] = await Promise.all([
-        compareImages(refImgPath, currImgPath, {ignore: 'less'}),
-        compareImages(refImgPath, currImgPath, {ignore: 'antialiasing'})
-    ]);
-
+exports.validateDiffSize = function({diffClusters}, maxDiffSize) {
+    debug(`diffClusters: ${util.inspect(diffClusters)}`);
     debug(`maxDiffSize: ${util.inspect(maxDiffSize)}`);
-    debug(`with Antialiasing: ${util.inspect(results)}`);
-    debug(`without Antialiasing: ${util.inspect(resultsWithoutAntialiasing)}`);
 
-    const {diffBounds} = results;
+    return diffClusters.every(({left, right, top, bottom}) => {
+        return right - left <= maxDiffSize.width
+            && bottom - top <= maxDiffSize.height;
+    });
+};
 
-    return resultsWithoutAntialiasing.rawMisMatchPercentage === 0
-        && diffBounds.right - diffBounds.left < maxDiffSize.width
-        && diffBounds.bottom - diffBounds.top < maxDiffSize.height;
+exports.compareImages = async function(refPath, currPath) {
+    const res = await compareImages(refPath, currPath, {ignore: 'antialiasing'});
+
+    debug(`compare results ignoring Antialiasing: ${util.inspect(res)}`);
+
+    return res.rawMisMatchPercentage === 0;
 };

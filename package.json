@@ -29,8 +29,8 @@
     "sinon": "^6.0.1"
   },
   "dependencies": {
-    "@gemini-testing/resemblejs": "^2.11.4",
     "debug": "^4.1.0",
-    "gemini-configparser": "^1.0.0"
+    "gemini-configparser": "^1.0.0",
+    "resemblejs": "^3.1.0"
   }
 }

@@ -36,9 +36,13 @@ async function reassertLastResult(assertViewResults, {maxDiffSize, dry}, test) {
         return;
     }
 
+    if (!util.validateDiffSize(lastResult, maxDiffSize)) {
+        return;
+    }
+
     try {
         const {stateName, refImg, currImg} = lastResult;
-        const isEqual = await util.compareImages({refImgPath: refImg.path, currImgPath: currImg.path, maxDiffSize});
+        const isEqual = await util.compareImages(refImg.path, currImg.path);
 
         const testTitle = test.fullTitle();
         const browserId = test.browserId;
