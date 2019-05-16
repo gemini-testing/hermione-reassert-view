@@ -1,6 +1,6 @@
 'use strict';
 
-const compareImages = require('@gemini-testing/resemblejs/compareImages');
+const compareImages = require('resemblejs/compareImages');
 const util = require('util');
 const debug = require('debug')('hermione-reassert-view');
 

@@ -9,7 +9,7 @@ describe('hermione-reassert-view/util', () => {
     beforeEach(() => {
         compareImages = sinon.stub().named('compareImages').resolves({});
         util = proxyquire('../util', {
-            '@gemini-testing/resemblejs/compareImages': compareImages
+            'resemblejs/compareImages': compareImages
         });
     });
 
