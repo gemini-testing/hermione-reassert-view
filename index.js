@@ -18,15 +18,15 @@ module.exports = (hermione, opts) => {
         if (!config.browsers.includes(browserId)) {
             return;
         }
+        async function reassertView(baseAssertViewFn, ...args) {
+            await baseAssertViewFn.apply(this, args);
 
-        const baseAssertView = browser.assertView.bind(browser);
-        browser.addCommand('assertView', async function(...args) {
-            await baseAssertView(...args);
+            const assertViewResults = browser.executionContext.hermioneCtx.assertViewResults.get();
 
-            const assertViewResults = this.executionContext.hermioneCtx.assertViewResults.get();
+            await reassertLastResult(assertViewResults, config, browser.executionContext.ctx.currentTest);
+        }
 
-            await reassertLastResult(assertViewResults, config, this.executionContext.ctx.currentTest);
-        }, true);
+        browser.overwriteCommand('assertView', reassertView);
     });
 };
 
