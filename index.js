@@ -19,7 +19,7 @@ module.exports = (hermione, opts) => {
             return;
         }
         async function reassertView(baseAssertViewFn, ...args) {
-            await baseAssertViewFn.apply(this, args);
+            await baseAssertViewFn(...args);
 
             const assertViewResults = browser.executionContext.hermioneCtx.assertViewResults.get();
 
@@ -27,6 +27,7 @@ module.exports = (hermione, opts) => {
         }
 
         browser.overwriteCommand('assertView', reassertView);
+        browser.overwriteCommand('assertView', reassertView, true);
     });
 };
 

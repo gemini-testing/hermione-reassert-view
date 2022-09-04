@@ -33,11 +33,14 @@ describe('hermione-reassert-view', () => {
         };
 
         browser.$ = sinon.stub().named('$').resolves(element);
-        browser.overwriteCommand = sinon.stub().callsFake((name, command, isElement) => {
-            const target = isElement ? element : browser;
-
-            target[name] = command.bind(target, target[name]);
-            sinon.spy(target, name);
+        browser.overwriteCommand = sinon.stub();
+        browser.overwriteCommand.withArgs(sinon.match.string, sinon.match.func).callsFake((name, command) => {
+            browser[name] = command.bind(browser, browser[name]);
+            sinon.spy(browser, name);
+        });
+        browser.overwriteCommand.withArgs(sinon.match.string, sinon.match.func, true).callsFake((name, command) => {
+            element[name] = command.bind(element, element[name]);
+            sinon.spy(element, name);
         });
 
         return browser;
@@ -73,7 +76,7 @@ describe('hermione-reassert-view', () => {
         assert.equal(hermione.listenerCount(events.NEW_BROWSER), 0);
     });
 
-    it('should wrap assertView command for specified browser', () => {
+    it('should wrap browser assertView command for specified browser', () => {
         const browser = stubBrowser_();
 
         const hermione = mkHermioneStub();
@@ -81,8 +84,18 @@ describe('hermione-reassert-view', () => {
 
         hermione.emit(events.NEW_BROWSER, browser, {browserId: 'bro'});
 
-        const firstCallArgs = browser.overwriteCommand.firstCall.args;
-        assert.deepEqual([firstCallArgs[0], firstCallArgs[2]], ['assertView', undefined]);
+        assert.calledWith(browser.overwriteCommand, 'assertView', sinon.match.func);
+    });
+
+    it('should wrap element assertView command for specified browser', () => {
+        const browser = stubBrowser_();
+
+        const hermione = mkHermioneStub();
+        plugin(hermione, {browsers: ['bro']});
+
+        hermione.emit(events.NEW_BROWSER, browser, {browserId: 'bro'});
+
+        assert.calledWith(browser.overwriteCommand, 'assertView', sinon.match.func, true);
     });
 
     it('should not wrap assertView command for other browser', () => {
@@ -115,8 +128,17 @@ describe('hermione-reassert-view', () => {
 
             await browser.assertView('foo', 'bar');
 
-            assert.calledOn(assertView, browser);
             assert.calledOnceWith(assertView, 'foo', 'bar');
+        });
+
+        it('should call base assertView on element', async () => {
+            const assertView = sinon.stub().named('baseAssertView');
+            const browser = init_({assertView});
+
+            const element = await browser.$('.selector');
+            await element.assertView('plain');
+
+            assert.calledOnceWith(assertView, 'plain');
         });
 
         it('should fail on base assertView fail', async () => {
