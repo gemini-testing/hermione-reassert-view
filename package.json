@@ -1,6 +1,6 @@
 {
   "name": "hermione-reassert-view",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Plugin to make image comparison less strict",
   "scripts": {
     "lint": "eslint .",
